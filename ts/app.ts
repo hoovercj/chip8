@@ -6,22 +6,16 @@ let buffer: ArrayBuffer;
 let keys: boolean[] = [];
 let emulationLoop;
 
-let delay = 16;
+let delay = 0;
 
 function setDelay(newDelay: number): void {
     delay = newDelay;
 }
 
 function startEmulation(): void {
-    // alert(`Hi! Buffer is ${buffer.byteLength} bytes long.`);
-    // Set up render system and register input callbacks
-    // setupGraphics();
     console.log('Start Emulation');
-    // Initialize the Chip8 system and load the game into the memory  
     chip8.initialize();
     chip8.loadRom(buffer);
-    
-    // Emulation loop
     tickEmulation();
 }
 
@@ -32,35 +26,10 @@ function stopEmulation(): void {
 
 function tickEmulation() {
     console.log('Tick emulation');
-    // Emulate one cycle
     chip8.emulateCycle();
-
-    // If the draw flag is set, update the screen
-    if(chip8.getDrawFlag()) {
-        drawGraphics();
-    }
-
-    // Store key press state (Press and Release)
+    window.requestAnimationFrame(drawCanvas);
     chip8.setKeys(keys);
     emulationLoop = setTimeout(tickEmulation, delay);
-}
-
-function drawGraphics(): void {
-    requestAnimationFrame(() => {
-        console.log('Draw graphics');
-        chip8.getDisplay().forEach((row, rowIndex) => {
-            row.forEach((column, columnIndex) => {
-                var pixel = document.querySelector(`.row[data="${rowIndex}"] .pixel[data="${columnIndex}"]`);
-                if (column) {
-                    // console.log('column: ' + columnIndex + ' row: ' + rowIndex);
-                    pixel.classList.add('white');
-                } else {
-                    pixel.classList.remove('white');
-                }
-            });
-        });
-        chip8.setDrawFlag(false);
-    });
 }
 
 function setupInput(): void {
@@ -68,20 +37,21 @@ function setupInput(): void {
     keys = [];
     window.onkeydown=function(e){
         e = e || <KeyboardEvent> window.event;
-        var key = keycodes[e.keyCode];
-        console.log(`Key down: ${key}`);
+        var key = keymap[String.fromCharCode(e.which).toUpperCase()];
         keys[key] = true;
+        console.log(`Key down: ${e.key}`);
     }
 
     window.onkeyup=function(e){
         e = e || <KeyboardEvent> window.event;
-        var key = keycodes[e.keyCode];
-        console.log(`Key up: ${key}`);
+        var key = keymap[String.fromCharCode(e.which).toUpperCase()];
         keys[key] = false;
+        console.log(`Key up: ${e.key}`);
     }
 }
 
-function setupFileReader() {
+
+function setupFileReader(): void {
     var fileInput = <HTMLInputElement> document.getElementById('fileInput');
     fileInput.addEventListener('change', function(e) {
         console.log('File selected');
@@ -97,30 +67,47 @@ function setupFileReader() {
     });
 }
 
+var canvasContext;
+function setupGraphics(): void {
+    var canvas = <HTMLCanvasElement> document.getElementById('chip8Canvas'); // in your HTML this element appears as <canvas id="mycanvas"></canvas>
+    canvasContext = canvas.getContext('2d');
+}
+
+function drawCanvas(): void {
+    // TODO: offscreen canvas?
+    canvasContext.fillRect(0, 0, 640, 320);
+    console.log('Draw graphics');
+    chip8.getDisplay().forEach((row, rowIndex) => {
+        row.forEach((column, columnIndex) => {
+            if (column) {
+                canvasContext.clearRect(columnIndex * 10, rowIndex * 10, 10, 10);
+            }
+        });
+    });
+}
+
 window.onload = function() {
     console.log('window.onload');
     setupInput();
     setupFileReader();
+    setupGraphics();
 }
 
-const keycodes = {
-    49: 0, // 1
-    50: 1, // 2
-    51: 2, // 3
-    54: 3, // 4
-
-    81: 4, // Q
-    87: 5, // W
-    89: 6, // E
-    82: 7, // R
-
-    65: 8, // A
-    83: 9, // S
-    68: 10, // D
-    70: 11, // F
-
-    90: 12, // Z
-    88: 13, // X
-    67: 15, // C
-    86: 15, // V
+const keymap = {
+    "1": 0x0,
+    "2": 0x1,
+    "3": 0x2,
+    "4": 0x3,
+    "Q": 0x4,
+    "W": 0x5,
+    "E": 0x6,
+    "R": 0x7,
+    "A": 0x8,
+    "S": 0x9,
+    "D": 0xA,
+    "F": 0xB,
+    "Z": 0xC,
+    "X": 0xD,
+    "C": 0xE,
+    "V": 0xF
 }
