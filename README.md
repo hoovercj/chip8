@@ -3,13 +3,25 @@ WIP.
 
 For fun :-)
 
-### Testing
-- Compile the typescript (tsc)
-- Run webpack (webpack)
+### How to run:
 - Serve (I use `http-server`)
 - Navigate to display.html
 - Load one of the included ROMs
-- Be sad because it isn't functional yet
+
+### How to modify:
+- npm install
+- pack it up with `webpack`
+- Run according to instructions above
+
+### How to run tests:
+- npm install
+- npm test
+
+### TODO:
+[X] Expose memory, registers, program counter, etc. as part of the interface
+[X] Write tests for the opcodes
+[] Clean up comments
+[] Make logging configurable. I want to be able to debug issues but not have to scroll three days between opcodes
 
 ### References
 - [How to write an emulator](http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/)

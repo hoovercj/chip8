@@ -8,7 +8,6 @@
         "outDir": "bin"
     },
     "exclude": [
-        "node_modules",
-        "test"
+        "node_modules"
     ]
 }
