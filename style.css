@@ -1,0 +1,27 @@
+@media(max-width:767px) {
+    #chip8canvas {
+        width: 500px;
+        height: 250px;
+    }
+}
+
+@media(min-width:768px) {
+    #chip8canvas {
+        width: 650px;
+        height: 325px;
+    }
+}
+
+/*@media(min-width:992px) {
+    #chip8canvas {
+        width: 500px;
+        height: 250px;
+    }
+}
+
+@media(min-width:1200px) {
+    #chip8canvas {
+        width: 500px;
+        height: 250px;
+    }
+}*/

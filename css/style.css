@@ -1,0 +1,104 @@
+html, body {
+    padding: 0px;
+    margin: 0px;
+	font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
+}
+
+div {
+    margin: 20px;
+}
+
+#header {
+    width: 100%;
+    text-align: center;
+    background-color: black;
+    color: white;
+    margin: 0px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.console:after {
+	content:"_";
+	opacity: 0;
+	animation: cursor 1s infinite;
+}
+@keyframes cursor {
+	0% {
+		opacity: 0;
+	}
+	40% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	90% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+table {
+    border-collapse: collapse;
+}
+thead > tr> td {
+    padding: 15px;
+}
+
+tbody > tr > td {
+    border: 1px solid;
+    border-collapse: collapse;
+    text-align: center;
+    padding: 5px;
+}
+
+
+
+.flex-container {
+   display: -webkit-flex;
+   display: flex;
+   -webkit-flex-direction: column;
+   flex-direction: column;
+   -webkit-align-items: center;
+   align-items: center;
+   -webkit-justify-content: center;
+   justify-content: center;
+   width: 100%;
+}
+
+.row {
+   -webkit-flex-direction: row;
+   flex-direction: row;
+}
+
+
+@media(max-width:767px) {
+    #canvasContainer {
+        width: 500px;
+        height: 250px;
+    }
+}
+
+@media(min-width:768px) {
+    #canvasContainer {
+        width: 600px;
+        height: 300px;
+    }
+}
+
+/*@media(min-width:992px) {
+    #canvasContainer {
+        width: 800px;
+        height: 400px;
+    }
+}*/
+
+/*@media(min-width:1200px) {
+    #canvasContainer {
+        width: 1000px;
+        height: 500px;
+    }
+}*/

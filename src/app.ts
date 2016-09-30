@@ -17,6 +17,12 @@ function startEmulation(): void {
     chip8 = new Chip8();
     chip8.loadRom(buffer);
     tickEmulation();
+    animate();
+}
+
+function animate(): void {
+    drawCanvas();
+    requestAnimationFrame(animate);
 }
 
 function stopEmulation(): void {
@@ -26,9 +32,8 @@ function stopEmulation(): void {
 
 function tickEmulation() {
     console.log('Tick emulation');
-    chip8.emulateCycle();
-    window.requestAnimationFrame(drawCanvas);
     chip8.setKeys(keys);
+    chip8.emulateCycle();
     emulationLoop = setTimeout(tickEmulation, delay);
 }
 
@@ -67,29 +72,66 @@ function setupFileReader(): void {
     });
 }
 
-var canvasContext;
+function setupRomSelector(): void {
+    var selectInput = <HTMLSelectElement> document.getElementById('romSelector');
+    selectInput.addEventListener('change', function(e) {
+        loadRom(selectInput.value);
+    });
+}
+
+function loadRom(name: string): void {
+      var request = new XMLHttpRequest;
+      request.onload = function() {
+        if (request.response) {
+          buffer = new Uint8Array(request.response);
+          stopEmulation();
+          startEmulation();
+        }
+      }
+      request.open("GET", "roms/" + name, true);
+      request.responseType = "arraybuffer";
+      request.send();
+    }
+
+var canvas: HTMLCanvasElement;
+var canvasContext: CanvasRenderingContext2D;
+var canvasContainer: HTMLDivElement;
 function setupGraphics(): void {
-    var canvas = <HTMLCanvasElement> document.getElementById('chip8Canvas'); // in your HTML this element appears as <canvas id="mycanvas"></canvas>
+    canvasContainer = <HTMLDivElement> document.getElementById('canvasContainer');
+    canvas = <HTMLCanvasElement> document.getElementById('chip8Canvas'); // in your HTML this element appears as <canvas id="mycanvas"></canvas>
     canvasContext = canvas.getContext('2d');
+    setCanvasSize();
+    window.addEventListener('resize', setCanvasSize);
+}
+
+function setCanvasSize() {
+    canvas.width = canvasContainer.clientWidth;
+    canvas.height = canvasContainer.clientHeight;
 }
 
 function drawCanvas(): void {
     // TODO: offscreen canvas?
-    canvasContext.fillRect(0, 0, 640, 320);
+    var scaleFactor = getScaleFactor();
+    canvasContext.fillRect(0, 0, canvasContainer.clientWidth, canvasContainer.clientHeight);
     console.log('Draw graphics');
     chip8.Display.forEach((row, rowIndex) => {
         row.forEach((column, columnIndex) => {
             if (column) {
-                canvasContext.clearRect(columnIndex * 10, rowIndex * 10, 10, 10);
+                canvasContext.clearRect(columnIndex * scaleFactor, rowIndex * scaleFactor, scaleFactor, scaleFactor);
             }
         });
     });
+}
+
+function getScaleFactor(): number {
+    return canvasContainer.clientWidth / 64;
 }
 
 window.onload = function() {
     console.log('window.onload');
     setupInput();
     setupFileReader();
+    setupRomSelector();
     setupGraphics();
 }
 
