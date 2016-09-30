@@ -1,1 +1,2 @@
-baseurl: "/chip8.ts"
+include:
+  - .nojekyll
