@@ -82,7 +82,7 @@ export class Chip8 implements IChip8{
         //console.log(`ProgramCounter: ${this.programCounter}`);
         //console.log(`Opcode: ${this.opcode.toString(16)}`);
         this.performOpcode();
-        this.updateTimers();
+        // this.updateTimers();
     }
 
     performOpcode(): void {
@@ -132,8 +132,8 @@ export class Chip8 implements IChip8{
                 break;
             case 0x3000: // 3XKK: Skip next instruction if Vx = kk.
                 //The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
-                console.log(`3XKK: Skip next instruction if Vx = kk.`);
-                console.log(`${this.V[this.X]} == ${this.KK}`)
+                // console.log(`3XKK: Skip next instruction if Vx = kk.`);
+                // console.log(`${this.V[this.X]} == ${this.KK}`)
                 if (this.V[this.X] == this.KK) {
                     this.ProgramCounter += 2;
                 }
@@ -358,12 +358,12 @@ export class Chip8 implements IChip8{
                         break;
                     case 0x0015: // Fx15: Set delay timer = Vx.
                         // DT is set equal to the value of Vx.
-                        console.log(`Fx15: Set delay timer = Vx = V${this.X} = ${this.V[this.X]}`);
+                        // console.log(`Fx15: Set delay timer = Vx = V${this.X} = ${this.V[this.X]}`);
                         this.DelayTimer = this.V[this.X];
                         break;
                     case 0x0018: // Fx18: Set sound timer = Vx.
                         // ST is set equal to the value of Vx.
-                        //console.log(`Fx18: Set sound timer = Vx = ${this.V[this.X]}`);
+                        console.log(`Fx18: Set sound timer = Vx = ${this.V[this.X]}`);
                         this.SoundTimer = this.V[this.X];
                         break;
                     case 0x001E: // Fx1E: Set I = I + Vx.
@@ -449,8 +449,9 @@ export class Chip8 implements IChip8{
         return this.Opcode & 0x000F;
     }
 
-    private updateTimers(): void {
+    public updateTimers(): void {
         // Update timers
+        // TODO: this check might not be necessary
         if (this.AwaitingKey) {
             return;
         }

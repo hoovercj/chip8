@@ -16,6 +16,7 @@ export interface IChip8 {
     loadRom(buffer: ArrayBuffer): void;
     emulateCycle(): void;
     setKeys(keys: boolean[]): void;
+    updateTimers(): void;
 
     // Testability Methods
     // setOpcodeFromMemory(): void;

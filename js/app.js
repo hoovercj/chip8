@@ -46,104 +46,54 @@
 
 	"use strict";
 	var chip8_1 = __webpack_require__(1);
+	// Emulator related variables
 	var chip8;
 	var buffer;
 	var keys = [];
 	var emulationLoop;
-	var delay = 0;
-	function setDelay(newDelay) {
-	    delay = newDelay;
-	}
-	function startEmulation() {
-	    console.log('Start Emulation');
-	    chip8 = new chip8_1.Chip8();
-	    chip8.loadRom(buffer);
-	    tickEmulation();
-	    animate();
-	}
-	function animate() {
-	    drawCanvas();
-	    requestAnimationFrame(animate);
-	}
-	function stopEmulation() {
-	    console.log('Stop emulation');
-	    clearInterval(emulationLoop);
-	}
-	function tickEmulation() {
-	    console.log('Tick emulation');
-	    chip8.setKeys(keys);
-	    chip8.emulateCycle();
-	    emulationLoop = setTimeout(tickEmulation, delay);
-	}
-	function setupInput() {
-	    console.log('Setup input');
-	    keys = [];
-	    window.onkeydown = function (e) {
-	        e = e || window.event;
-	        var key = keymap[String.fromCharCode(e.which).toUpperCase()];
-	        keys[key] = true;
-	        console.log("Key down: " + e.key);
-	    };
-	    window.onkeyup = function (e) {
-	        e = e || window.event;
-	        var key = keymap[String.fromCharCode(e.which).toUpperCase()];
-	        keys[key] = false;
-	        console.log("Key up: " + e.key);
-	    };
-	}
-	function setupFileReader() {
-	    var fileInput = document.getElementById('fileInput');
-	    fileInput.addEventListener('change', function (e) {
-	        console.log('File selected');
-	        var file = fileInput.files[0];
-	        var reader = new FileReader();
-	        reader.onloadend = function (e) {
-	            console.log('File loaded');
-	            buffer = reader.result;
-	            stopEmulation();
-	            startEmulation();
-	        };
-	        reader.readAsArrayBuffer(file);
-	    });
-	}
-	function setupRomSelector() {
-	    var selectInput = document.getElementById('romSelector');
-	    selectInput.addEventListener('change', function (e) {
-	        loadRom(selectInput.value);
-	    });
-	}
-	function loadRom(name) {
-	    var request = new XMLHttpRequest;
-	    request.onload = function () {
-	        if (request.response) {
-	            buffer = new Uint8Array(request.response);
-	            stopEmulation();
-	            startEmulation();
-	        }
-	    };
-	    request.open("GET", "roms/" + name, true);
-	    request.responseType = "arraybuffer";
-	    request.send();
-	}
+	var ticksPerFrame = 10;
+	var beepFrequency = 400;
+	// Input elements
+	var selectInput;
+	var fileInput;
+	var restartButton;
+	// Canvas elements
 	var canvas;
 	var canvasContext;
 	var canvasContainer;
-	function setupGraphics() {
-	    canvasContainer = document.getElementById('canvasContainer');
-	    canvas = document.getElementById('chip8Canvas'); // in your HTML this element appears as <canvas id="mycanvas"></canvas>
-	    canvasContext = canvas.getContext('2d');
-	    setCanvasSize();
-	    window.addEventListener('resize', setCanvasSize);
+	// Audio variables
+	var audioContext;
+	var oscillator;
+	var gain;
+	// Emulation functions
+	function startEmulation() {
+	    stopEmulation();
+	    chip8 = new chip8_1.Chip8();
+	    chip8.loadRom(buffer);
+	    loopEmulation();
 	}
-	function setCanvasSize() {
-	    canvas.width = canvasContainer.clientWidth;
-	    canvas.height = canvasContainer.clientHeight;
+	function tickEmulation() {
+	    chip8.setKeys(keys);
+	    chip8.emulateCycle();
+	}
+	function stopEmulation() {
+	    cancelAnimationFrame(emulationLoop);
+	}
+	// Perform emulation ticks at a specified rate.
+	// Draw the screen and update the timers at a rate of 60Hz
+	function loopEmulation() {
+	    for (var i = 0; i < ticksPerFrame; i++) {
+	        tickEmulation();
+	    }
+	    gain.gain.value = chip8.SoundTimer > 0 ? 1 : 0;
+	    chip8.updateTimers();
+	    drawCanvas();
+	    emulationLoop = requestAnimationFrame(loopEmulation);
 	}
 	function drawCanvas() {
 	    // TODO: offscreen canvas?
 	    var scaleFactor = getScaleFactor();
 	    canvasContext.fillRect(0, 0, canvasContainer.clientWidth, canvasContainer.clientHeight);
-	    console.log('Draw graphics');
 	    chip8.Display.forEach(function (row, rowIndex) {
 	        row.forEach(function (column, columnIndex) {
 	            if (column) {
@@ -152,15 +102,92 @@
 	        });
 	    });
 	}
+	function loadSelectedRom() {
+	    var request = new XMLHttpRequest;
+	    var name = selectInput.value;
+	    request.onload = function () {
+	        if (request.response) {
+	            buffer = new Uint8Array(request.response);
+	            startEmulation();
+	        }
+	    };
+	    request.open("GET", "roms/" + name, true);
+	    request.responseType = "arraybuffer";
+	    request.send();
+	    selectInput.blur();
+	}
+	// Setup functions
+	function setupAudio() {
+	    if (oscillator) {
+	        oscillator.stop();
+	    }
+	    audioContext = new AudioContext();
+	    oscillator = audioContext.createOscillator();
+	    oscillator.type = oscillator.TRIANGLE;
+	    oscillator.frequency.value = beepFrequency;
+	    oscillator.start(0);
+	    gain = audioContext.createGain();
+	    gain.gain.value = 0;
+	    oscillator.connect(gain);
+	    gain.connect(audioContext.destination);
+	}
+	function setupInput() {
+	    keys = [];
+	    window.onkeydown = function (e) {
+	        e = e || window.event;
+	        var key = keymap[String.fromCharCode(e.which).toUpperCase()];
+	        keys[key] = true;
+	    };
+	    window.onkeyup = function (e) {
+	        e = e || window.event;
+	        var key = keymap[String.fromCharCode(e.which).toUpperCase()];
+	        keys[key] = false;
+	    };
+	}
+	function setupFileReader() {
+	    fileInput = document.getElementById('fileInput');
+	    fileInput.addEventListener('change', function (e) {
+	        var file = fileInput.files[0];
+	        var reader = new FileReader();
+	        reader.onloadend = function (e) {
+	            buffer = reader.result;
+	            startEmulation();
+	        };
+	        reader.readAsArrayBuffer(file);
+	    });
+	}
+	function setupRomSelector() {
+	    selectInput = document.getElementById('romSelector');
+	    selectInput.addEventListener('change', loadSelectedRom);
+	}
+	function setupGraphics() {
+	    canvasContainer = document.getElementById('canvasContainer');
+	    canvas = document.getElementById('chip8Canvas');
+	    canvasContext = canvas.getContext('2d');
+	    setCanvasSize();
+	    window.addEventListener('resize', setCanvasSize);
+	}
+	function setupRestartButton() {
+	    restartButton = document.getElementById('restartRom');
+	    restartButton.addEventListener('click', startEmulation);
+	}
+	function setCanvasSize() {
+	    canvas.width = canvasContainer.clientWidth;
+	    canvas.height = canvasContainer.clientHeight;
+	}
 	function getScaleFactor() {
 	    return canvasContainer.clientWidth / 64;
 	}
 	window.onload = function () {
 	    console.log('window.onload');
 	    setupInput();
+	    setupAudio();
 	    setupFileReader();
 	    setupRomSelector();
+	    setupRestartButton();
 	    setupGraphics();
+	    loadSelectedRom();
+	    startEmulation();
 	};
 	var keymap = {
 	    "1": 0x1,
@@ -232,7 +259,7 @@
 	        //console.log(`ProgramCounter: ${this.programCounter}`);
 	        //console.log(`Opcode: ${this.opcode.toString(16)}`);
 	        this.performOpcode();
-	        this.updateTimers();
+	        // this.updateTimers();
 	    };
 	    Chip8.prototype.performOpcode = function () {
 	        var _this = this;
@@ -279,8 +306,8 @@
 	                break;
 	            case 0x3000:
 	                //The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
-	                console.log("3XKK: Skip next instruction if Vx = kk.");
-	                console.log(this.V[this.X] + " == " + this.KK);
+	                // console.log(`3XKK: Skip next instruction if Vx = kk.`);
+	                // console.log(`${this.V[this.X]} == ${this.KK}`)
 	                if (this.V[this.X] == this.KK) {
 	                    this.ProgramCounter += 2;
 	                }
@@ -499,12 +526,12 @@
 	                        break;
 	                    case 0x0015:
 	                        // DT is set equal to the value of Vx.
-	                        console.log("Fx15: Set delay timer = Vx = V" + this.X + " = " + this.V[this.X]);
+	                        // console.log(`Fx15: Set delay timer = Vx = V${this.X} = ${this.V[this.X]}`);
 	                        this.DelayTimer = this.V[this.X];
 	                        break;
 	                    case 0x0018:
 	                        // ST is set equal to the value of Vx.
-	                        //console.log(`Fx18: Set sound timer = Vx = ${this.V[this.X]}`);
+	                        console.log("Fx18: Set sound timer = Vx = " + this.V[this.X]);
 	                        this.SoundTimer = this.V[this.X];
 	                        break;
 	                    case 0x001E:
@@ -583,6 +610,7 @@
 	    };
 	    Chip8.prototype.updateTimers = function () {
 	        // Update timers
+	        // TODO: this check might not be necessary
 	        if (this.AwaitingKey) {
 	            return;
 	        }
