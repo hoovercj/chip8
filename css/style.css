@@ -1,7 +1,7 @@
 html, body {
     padding: 0px;
     margin: 0px;
-	font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
+    font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
 }
 
 #header {
@@ -14,50 +14,59 @@ html, body {
 }
 
 .console:after {
-	content:"_";
-	opacity: 0;
-	animation: cursor 1s infinite;
+    content:"_";
+    opacity: 0;
+    animation: cursor 1s infinite;
 }
 @keyframes cursor {
-	0% {
-		opacity: 0;
-	}
-	40% {
-		opacity: 0;
-	}
-	50% {
-		opacity: 1;
-	}
-	90% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
+    0% {
+        opacity: 0;
+    }
+    40% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
-#canvasContainer {
-    margin: 20px;
+#restartRom {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
+    cursor: pointer;
+}
+#restartRom:hover {
+    background-color: #3e8e41;
 }
 
 table {
-    margin: 20px;
     border-collapse: collapse;
 }
 thead > tr> td {
-    padding: 15px;
+    padding-bottom: 15px;
 }
-
 tbody > tr > td {
     border: 1px solid;
     border-collapse: collapse;
     text-align: center;
     padding: 5px;
-}
-
-label {
-    padding-right: 10px;
-    padding-left: 10px;
 }
 
 .flex-container {
@@ -75,6 +84,23 @@ label {
 .row {
    -webkit-flex-direction: row;
    flex-direction: row;
+}
+
+#keyboard {
+    margin-bottom: 20px;
+}
+
+select {
+    margin-bottom: 10px;
+}
+
+label {
+    margin: 10px;
+}
+
+#content {
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 @media(max-width:767px) {

@@ -40,14 +40,6 @@ describe('Chip8', () => {
             expect(chip8.Opcode).to.equal(0xAABB);
         });
 
-        it("updates the timers", function () {
-            chip8.SoundTimer = 1;
-            chip8.DelayTimer = 1;
-            chip8.emulateCycle();
-            expect(chip8.SoundTimer).to.be(0);
-            expect(chip8.DelayTimer).to.be(0);
-        });
-
         context("when paused", function () {
             beforeEach(function () {
                 chip8.AwaitingKey = true;
