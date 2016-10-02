@@ -78,8 +78,16 @@
     </div>
     <div id="content">
         <h2>What is this?</h2>
-        <p>This is an interpreter for a 1970's era programming language called <a href="https://en.wikipedia.org/wiki/CHIP-8#Virtual_machine_description">Chip8</a> that was used on hobby computers for games like Pong, Space Invaders, etc. My program reads the same programs as the old computers did and emulates how they operated, letting you experience the programs in your browser.</p>
-        <p>I got the idea from a <a href="http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/">blog article</a> and had a blast putting it together. Check out my <a href="https://github.com/hoovercj/chip8">code</a> on github and let let me know if you have any <a href="https://github.com/hoovercj/chip8/issues">issues or suggestions</a>.</p>
+        <p>This is an interpreter and emulator for a 1970's era programming language called <a href="https://en.wikipedia.org/wiki/CHIP-8#Virtual_machine_description">Chip8</a> that was used on hobby computers for games like Pong, Space Invaders, etc. To summarize part of the article that inspired me to make this:</p>
+        <blockquote><p>An emulator is a computer program that mimics the internal design and functionality of a computer system (System A). It allows users to run software designed for this specific system (Sytem A) on a totally different system (System B).</p>
+
+        <p>For example, Pong was originally developed by Atari for their systems. However, people made other versions of the game to run on rival platforms such as Amstrad, Amiga and the C64.</p>
+
+        <p>Since not every Pong game was licensed by Atari to run on these platforms, it also meant that not every game was running the code from Atari. Basically what happened is that people created their own implementation (clones) of the game Pong. In this case they simulated the looks and game behavior of Pong.</p>
+
+        <p>In case of an emulator, we choose not to re-implement the game Pong for our system. Instead, we re-create the environment with a computer program which allows us to run the original machine code of Pong. A benefit of this is that it won't just allow us to run Pong, but also any other application developed for that platform.</p>
+        </blockquote>
+        <p>You can read more details in the <a href="http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/">blog article</a>. I had a blast putting this together, so stick around and play a while or check out my <a href="https://github.com/hoovercj/chip8">code</a> on github and let let me know if you have any <a href="https://github.com/hoovercj/chip8/issues">issues or suggestions</a>.</p>
     </div>
     <script src="js/app.js"></script>
 </body>

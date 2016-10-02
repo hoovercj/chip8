@@ -110,7 +110,7 @@ label {
     }
 
     .row {
-        -webkit-flex-direction: row;
+        -webkit-flex-direction: column-reverse;
         flex-direction: column-reverse
     }
 }
