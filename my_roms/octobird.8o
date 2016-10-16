@@ -1,0 +1,320 @@
+###########################################
+#
+#  Octo Bird
+#
+#  An adaptation of "Flappy Bird"
+#  for Chip 8.
+#
+#  Press W to start a game and then
+#  press W to flap.
+#  Avoid obstacles!
+#
+###########################################
+
+:alias gap1 vd
+:alias gap2 vc
+:alias gap3 vb
+:alias birdX va
+:alias birdY v9
+:alias birdSpeed v8
+:alias score v7
+:alias pipe_one_x v6
+:alias pipe_two_x v5
+:alias pipe_three_x v4
+:alias sync_timer v3
+
+:const MAX_SPEED 3
+:const BUTTON 5
+
+:const PIPE_1_X 20
+:const PIPE_2_X 40
+:const PIPE_3_X 60
+:const SYNC_RATE 5
+:const GAP_SIZE 6
+# :const SYNC_RATE 255
+
+: move-bird
+    birdX += 1
+    birdY += birdSpeed
+    birdSpeed += 1
+;
+
+: draw-bird
+    sprite birdX birdY 1
+;
+
+: draw-ground
+    v0 := 31
+    v1 := 0
+    v2 := 0
+    loop
+        while v1 != 64
+        sprite v1 v2 1
+        sprite v1 v0 1
+        v1 += 8
+    again
+;
+
+: draw-pipe-base
+    #draw 3 vertical lines at 20, 40, and 60
+    v0 := 1
+    v1 := 16
+    sprite pipe_one_x v0 15
+    sprite pipe_one_x v1 15
+    sprite pipe_two_x v0 15
+    sprite pipe_two_x v1 15
+    sprite pipe_three_x v0 15
+    sprite pipe_three_x v1 15
+;
+
+: draw-pipe-gaps
+    # y = random number between 4 and 20
+    gap1 := random 0xF
+    gap1 += 4
+    sprite pipe_one_x gap1 GAP_SIZE
+
+    gap2 := random 0xF
+    gap2 += 4
+    sprite pipe_two_x gap2 GAP_SIZE
+
+    gap3 := random 0xF
+    gap3 += 4
+    sprite pipe_three_x gap3 GAP_SIZE
+;
+
+: fill-pipe-gaps
+    sprite pipe_one_x gap1 GAP_SIZE
+    sprite pipe_two_x gap2 GAP_SIZE
+    sprite pipe_three_x gap3 GAP_SIZE
+;
+
+: loop-back
+    birdX := 0
+    fill-pipe-gaps
+    draw-pipe-gaps
+    score += 1
+;
+
+: sync
+    loop
+        sync_timer := delay
+        if sync_timer != 0 then
+    again
+    sync_timer := SYNC_RATE
+    delay := sync_timer
+;
+
+: game-init
+    clear
+    i := ground
+    draw-ground
+
+    i := pipe
+    draw-pipe-base
+    draw-pipe-gaps
+
+    score := 0
+    birdX := 0
+    birdY := 10
+    birdSpeed := 0
+    draw-bird
+;
+
+: game-loop
+    loop
+        v2 := BUTTON if v2 key then birdSpeed := -2 # keyboard W
+        draw-bird # erase the previous bird
+        move-bird # update the bird coordinates
+        draw-bird # draw the new bird
+        if vf != 0 then return # if there is any collision (top, bottom, pipes), game over
+        if birdY <= 0 then return
+        if birdY >= 32 then return
+        if birdX == 64 then loop-back
+        sync
+    again
+;
+
+: start-screen
+    clear
+    draw-title
+    draw-author
+    loop
+        # v3 := 5 if v3 key then jump game-init # keyboard W
+        # animate-bird
+        v1 := 28
+        v2 := 9
+        i := bird-one
+        sprite v1 v2 15
+        sync
+        sprite v1 v2 15
+        v0 := BUTTON if v0 key then return # keyboard W
+        i := bird-two
+        sprite v1 v2 15
+        sync
+        sprite v1 v2 15
+        v3 := BUTTON if v3 key then return # keyboard W
+    again
+;
+
+: draw-title
+    # OCTO
+    v0 := 2
+    v1 := 2
+    i := letter-o
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-c
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-t
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-o
+    sprite v0 v1 15
+
+    # BIRD
+    v0 += 12
+    i := letter-b
+    sprite v0 v1 15
+
+    v0 += 5
+    i := letter-i
+    sprite v0 v1 15
+
+    v0 += 5
+    i := letter-r
+    sprite v0 v1 15
+
+    v0 += 8
+    i := letter-d
+    sprite v0 v1 15
+;
+
+: draw-author
+    # OCTO
+    v0 := 16
+    v1 := 23
+    i := letter-b
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-y
+    sprite v0 v1 15
+
+    # CODY
+    v0 += 12
+    i := letter-c
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-o
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-d
+    sprite v0 v1 15
+
+    v0 += 7
+    i := letter-y
+    sprite v0 v1 15
+;
+
+: show-score
+    i  := digits   # the destination for bcd
+    bcd score         # unpack digits in v0
+
+    va := 3       # x position of first digit
+    vb := 12       # y position of first digit
+    i := digits
+    load v2        # load digits into v0-v2
+
+    i := hex v0    # hundreds digit
+    sprite va vb 5
+    va += 5
+
+    i := hex v1    # tens digit
+    sprite va vb 5
+    va += 5
+
+    i := hex v2    # ones digit
+    sprite va vb 5
+    va += 5
+;
+
+: game-over
+    show-score
+    v2 := 16
+    buzzer := v2
+    v2 := 50
+    delay := v2
+    loop
+        v2 := delay
+        if v2 != 0 then
+    again
+    loop 
+        v2 := BUTTON if v2 key then return
+    again
+;
+
+: main
+    pipe_one_x := PIPE_1_X
+    pipe_two_x := PIPE_2_X
+    pipe_three_x := PIPE_3_X
+    start-screen
+    loop
+        game-init
+        game-loop
+        game-over
+    again
+;
+
+: pipe
+ 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80 0x80
+
+: ground
+0xFF
+
+: letter-o
+0x78 0x84 0x8C 0x8C 0x8C 0x8C 0x78 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-c
+0xFC 0x80 0xC0 0xC0 0xC0 0xC0 0xFC 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-t
+0xFC 0x10 0x30 0x30 0x30 0x30 0x30 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-b
+0xF8 0x84 0xC4 0xF8 0xC4 0xC4 0xF8 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-i
+0x10 0x10 0x10 0x30 0x30 0x30 0x30 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-r
+0xFE 0x86 0x86 0xFE 0x88 0x8C 0x84 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-d
+0xF8 0x8C 0xC4 0xC4 0xC4 0xCC 0xF8 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: letter-y
+0x84 0x84 0xCC 0x78 0x10 0x30 0x30 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00
+
+: bird-one
+0x00 0x00 0x00 0xC0 0xEE 0x7A 0x9F 0x8C
+0x9C 0x70 0x00 0x00 0x00 0x00 0x00
+
+: bird-two
+0x00 0x00 0x00 0x00 0x0E 0x9A 0xFF 0x8C
+0x9C 0x70 0x00 0x00 0x00 0x00 0x00
+
+: digits 0 0 0

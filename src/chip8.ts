@@ -346,14 +346,14 @@ export class Chip8 implements IChip8{
                         //console.log('Fx0A: Wait for a key press, store the value of the key in Vx.');
                         if (!this.AwaitingKey) {
                             this.AwaitingKey = true;
+                            this.ProgramCounter -= 2;
                             return;
                         }
-
                         this.Keys.forEach((key, index) => {
                             if (key) {
                                 this.V[this.X] = index;
+                                this.AwaitingKey = false;
                             }
-                            this.AwaitingKey = false;
                         });
                         break;
                     case 0x0015: // Fx15: Set delay timer = Vx.
@@ -452,17 +452,14 @@ export class Chip8 implements IChip8{
     public updateTimers(): void {
         // Update timers
         // TODO: this check might not be necessary
-        if (this.AwaitingKey) {
-            return;
-        }
+        // if (this.AwaitingKey) {
+        //     return;
+        // }
 
         if (this.DelayTimer > 0) {
             this.DelayTimer--;
         }
         if (this.SoundTimer > 0) {
-            if (this.SoundTimer == 1) {
-                //console.log("BEEP!\n");
-            }
             this.SoundTimer--;
         }
     }

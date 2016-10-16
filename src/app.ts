@@ -88,7 +88,6 @@ function setupAudio(): void {
     }
     audioContext = new AudioContext();
     oscillator = audioContext.createOscillator();
-    oscillator.type = (<any> oscillator).TRIANGLE;
     oscillator.frequency.value = beepFrequency;
     oscillator.start(0);
     gain = audioContext.createGain();
