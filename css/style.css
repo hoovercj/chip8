@@ -36,6 +36,12 @@ html, body {
     }
 }
 
+#canvasContainer {
+    border-width: 10px;
+    border-color: #2980B9;
+    border-style: solid;
+}
+
 #restartRom {
     background-color: #4CAF50; /* Green */
     border: none;
